@@ -1,0 +1,93 @@
+honeypot:
+  ssh:
+    enabled: true
+    port: 2222
+    banner: "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4"
+    max_connections: 100
+    timeout: 30
+    fake_users:
+      - username: "admin"
+        password: "admin"
+      - username: "root"
+        password: "password"
+      - username: "user"
+        password: "123456"
+      - username: "test"
+        password: "test"
+    
+  http:
+    enabled: true
+    port: 8080
+    server_name: "Apache/2.4.41 (Ubuntu)"
+    fake_pages:
+      - path: "/admin"
+        template: "admin_login.html"
+      - path: "/login"
+        template: "login.html"
+      - path: "/wp-admin"
+        template: "wordpress_admin.html"
+      - path: "/phpmyadmin"
+        template: "phpmyadmin.html"
+    
+  ftp:
+    enabled: true
+    port: 2121
+    banner: "220 ProFTPD 1.3.6 Server ready."
+    anonymous_allowed: true
+    fake_files:
+      - "readme.txt"
+      - "config.conf"
+      - "backup.sql"
+      - "users.csv"
+    
+  telnet:
+    enabled: true
+    port: 2323
+    banner: "Ubuntu 20.04.5 LTS"
+    fake_users:
+      - username: "admin"
+        password: "admin"
+      - username: "cisco"
+        password: "cisco"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/honeypot.log"
+  max_size: "10MB"
+  backup_count: 5
+
+elasticsearch:
+  host: "localhost"
+  port: 9200
+  index_prefix: "honeypot"
+  
+geolocation:
+  enabled: true
+  database_path: "data/GeoLite2-City.mmdb"
+  
+alerts:
+  enabled: true
+  email:
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: ""
+    password: ""
+    recipients: []
+  thresholds:
+    failed_logins_per_minute: 10
+    unique_ips_per_hour: 50
+    suspicious_commands: ["wget", "curl", "nc", "nmap", "sqlmap"]
+
+threat_intelligence:
+  enabled: true
+  sources:
+    - "https://reputation.alienvault.com/reputation.data"
+    - "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
+  update_interval: 3600  # seconds
+
+dashboard:
+  host: "0.0.0.0"
+  port: 12000
+  debug: false
+  secret_key: "your-secret-key-change-this"
