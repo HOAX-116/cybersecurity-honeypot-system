@@ -1,11 +1,11 @@
 honeypot:
   ssh:
     enabled: true
-    port: 2222
+    port: 2222  # Keep this as it matches your security group
     banner: "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4"
-    max_connections: 100
+    max_connections: 200  # Increased for cloud environment
     timeout: 30
-    fake_users:
+    fake_users:  # Keep your existing fake users
       - username: "admin"
         password: "admin"
       - username: "root"
@@ -17,9 +17,9 @@ honeypot:
     
   http:
     enabled: true
-    port: 8080
+    port: 80  # Changed to 80 to match security group
     server_name: "Apache/2.4.41 (Ubuntu)"
-    fake_pages:
+    fake_pages:  # Keep your existing fake pages
       - path: "/admin"
         template: "admin_login.html"
       - path: "/login"
@@ -31,10 +31,10 @@ honeypot:
     
   ftp:
     enabled: true
-    port: 2121
+    port: 21  # Changed to 21 to match security group
     banner: "220 ProFTPD 1.3.6 Server ready."
     anonymous_allowed: true
-    fake_files:
+    fake_files:  # Keep your existing fake files
       - "readme.txt"
       - "config.conf"
       - "backup.sql"
@@ -42,9 +42,9 @@ honeypot:
     
   telnet:
     enabled: true
-    port: 2323
+    port: 23  # Changed to 23 to match security group
     banner: "Ubuntu 20.04.5 LTS"
-    fake_users:
+    fake_users:  # Keep your existing fake users
       - username: "admin"
         password: "admin"
       - username: "cisco"
@@ -53,45 +53,56 @@ honeypot:
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/honeypot.log"
-  max_size: "10MB"
-  backup_count: 5
+  file: "/var/log/honeypot/honeypot.log"  # Changed to standard Linux log location
+  max_size: "50MB"  # Increased for cloud environment
+  backup_count: 10  # Increased for cloud environment
 
 elasticsearch:
-  host: "localhost"
+  host: "172.31.91.179"  # Private IP of your ELK instance
   port: 9200
   index_prefix: "honeypot"
+  bulk_size: 100  # Added for better ES performance
+  flush_interval: 10  # Added (seconds)
   
 geolocation:
   enabled: true
-  database_path: "data/GeoLite2-City.mmdb"
+  database_path: "/opt/honeypot/data/GeoLite2-City.mmdb"  # Standardized path
   
 alerts:
   enabled: true
   email:
-    smtp_server: "smtp.gmail.com"
+    smtp_server: "email-smtp.us-east-1.amazonaws.com"  # AWS SES recommended
     smtp_port: 587
-    username: ""
+    username: ""  # Fill with AWS SES credentials
     password: ""
-    recipients: []
+    recipients: []  # Add your email here
   thresholds:
-    failed_logins_per_minute: 10
-    unique_ips_per_hour: 50
-    suspicious_commands: ["wget", "curl", "nc", "nmap", "sqlmap"]
+    failed_logins_per_minute: 20  # Increased for cloud
+    unique_ips_per_hour: 100  # Increased for cloud
+    suspicious_commands: ["wget", "curl", "nc", "nmap", "sqlmap", "aws", "ec2"]
 
 threat_intelligence:
   enabled: true
   sources:
     - "https://reputation.alienvault.com/reputation.data"
     - "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
-  update_interval: 3600  # seconds
+    - "https://www.binarydefense.com/banlist.txt"  # Added
+  update_interval: 1800  # More frequent updates (30 minutes)
 
 dashboard:
   host: "0.0.0.0"
-  port: 12000
+  port: 3000  # Changed to match security group
   debug: false
-  secret_key: "your-secret-key-change-this"
+  secret_key: "your-secret-key-change-this"  # Generate a strong one
+  auth_required: true  # Added for security
+  auth_username: "admin"  # Added
+  auth_password: "change-this-password"  # Added
   
-  # Performance optimizations for free tier
-  max_recent_attacks: 100  # Limit memory usage
-  update_interval: 10  # Update every 10 seconds instead of 5
+# New AWS-specific section
+aws:
+  region: "us-east-1"  # Match your region
+  metadata_service: "http://169.254.169.254"  # For AWS metadata
+  instance_id: "i-0ee69c23d3d58b2cf"  # Your honeypot instance ID
+  tags:
+    project: "honeypot"
+    environment: "production"
