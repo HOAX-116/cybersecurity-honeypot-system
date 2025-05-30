@@ -91,3 +91,7 @@ dashboard:
   port: 12000
   debug: false
   secret_key: "your-secret-key-change-this"
+  
+  # Performance optimizations for free tier
+  max_recent_attacks: 100  # Limit memory usage
+  update_interval: 10  # Update every 10 seconds instead of 5
