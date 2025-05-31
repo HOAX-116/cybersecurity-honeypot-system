@@ -58,7 +58,7 @@ services:
           memory: 128M
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.10.0
+    image: docker.elastic.co/kibana/kibana:8.10.2
     container_name: honeypot-kibana
     ports:
       - "5601:5601"
