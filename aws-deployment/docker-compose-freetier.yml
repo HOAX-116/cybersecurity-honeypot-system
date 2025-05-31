@@ -65,7 +65,7 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
       NODE_OPTIONS: "--max-old-space-size=256"
-      LOGGING_QUIET: true
+      LOGGING_QUIET: "true"
     networks:
       - honeypot-network
     depends_on:
